@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Ticket Dashboard</h1>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info" role="alert">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if user %}
+        <div class="mb-5">
+            <h2 class="h4">Tickets Assigned to Me</h2>
+            <div class="container border border-dark rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                <div class="row">
+                    {% for ticket in assigned_tickets %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Ticket ID: {{ ticket.id }}</h5>
+                                    <p class="card-text"><strong>Subject:</strong> {{ ticket.subject }}</p>
+                                    <p class="card-text"><strong>Description:</strong> {{ ticket.description }}</p>
+                                    <p class="card-text"><strong>Priority:</strong> {{ ticket.priority }}</p>
+                                    <p class="card-text"><strong>Email:</strong> {{ ticket.email }}</p>
+                                    <p class="card-text"><strong>Assigned to:</strong> {{ ticket.user.username }}</p>
+                                    <form method="POST" action="{{ url_for('unassign_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                        <button class="btn btn-warning btn-sm" type="submit">Unassign Ticket</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                        <button class="btn btn-danger btn-sm" type="submit">Delete Ticket</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-secondary" role="alert">
+                                No tickets assigned to you.
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="h4">All Tickets</h2>
+            <div class="container border border-dark rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                <div class="row">
+                    {% for ticket in tickets %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Ticket ID: {{ ticket.id }}</h5>
+                                    <p class="card-text"><strong>Subject:</strong> {{ ticket.subject }}</p>
+                                    <p class="card-text"><strong>Description:</strong> {{ ticket.description }}</p>
+                                    <p class="card-text"><strong>Priority:</strong> {{ ticket.priority }}</p>
+                                    <p class="card-text"><strong>Email:</strong> {{ ticket.email }}</p>
+                                    <p class="card-text"><strong>Assigned to:</strong> 
+                                        {% if ticket.user %}
+                                            {{ ticket.user.username }}
+                                            <form method="POST" action="{{ url_for('unassign_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                                <button class="btn btn-warning btn-sm" type="submit">Unassign Ticket</button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                                <button class="btn btn-danger btn-sm" type="submit">Delete Ticket</button>
+                                            </form>
+                                        {% else %}
+                                            Unassigned
+                                            <form method="POST" action="{{ url_for('assign_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                                <button class="btn btn-success btn-sm" type="submit">Assign Ticket</button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('delete_ticket', ticket_id=ticket.id) }}" class="mt-2">
+                                                <button class="btn btn-danger btn-sm" type="submit">Delete Ticket</button>
+                                            </form>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-secondary" role="alert">
+                                No tickets available.
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
+
