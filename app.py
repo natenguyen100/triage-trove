@@ -8,7 +8,7 @@ from forms.ticket_form import *
 
 app = Flask(__name__)
 CORS(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://tsvkcmug:HyBU_E90vwFhxDsYvQqAKlyWkSbXBK-i@ruby.db.elephantsql.com/tsvkcmug'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://tsvkcmug:HyBU_E90vwFhxDsYvQqAKlyWkSbXBK-i@ruby.db.elephantsql.com/tsvkcmug'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHMEY_ECHO"] = True
 app.config["SECRET_KEY"] = "abc123"
