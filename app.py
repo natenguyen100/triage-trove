@@ -122,7 +122,7 @@ def profile():
             user.email = form.email.data
             user.role = form.role.data
             db.session.commit()
-            flash('Profile updated successfully', 'success')
+            flash('Profile updated successfully!', 'success')
             return redirect(url_for('dashboard'))
 
     return render_template('users/profile.html', form=form, user=user)
