@@ -10,6 +10,11 @@ def connect_db(app):
         db.init_app(app)
         db.create_all()
 
+user_roles = db.Table('user_roles',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -39,9 +44,12 @@ class User(db.Model):
                                  nullable=False,
                                  unique=True)
     
+    roles = db.relationship('Role', secondary=user_roles, backref='users')
+
     @classmethod
     def register(cls, first_name, last_name, username, email, password, confirm_password):
         """Register user with hashed password & return user"""
+    
         hashed = bcrypt.generate_password_hash(password)
         hashed_utf8 = hashed.decode("utf8")
         user = cls(first_name=first_name, last_name=last_name, username=username, email=email, password=hashed_utf8, confirm_password=hashed_utf8)
@@ -58,6 +66,17 @@ class User(db.Model):
             return user
         else:
             return False
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, 
+                   primary_key=True,
+                   autoincrement=True)
+    
+    role_name = db.Column(db.String,
+                          nullable=True,
+                          unique=True)
         
 class Ticket(db.Model):
     __tablename__ = 'tickets'
@@ -78,6 +97,7 @@ class Ticket(db.Model):
     
     email = db.Column(db.String,
                       nullable=True)
+    
     user_id = db.Column(db.Integer,
                         db.ForeignKey('users.id'),
                         nullable=True)

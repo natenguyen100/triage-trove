@@ -1,10 +1,12 @@
-from flask import Flask, render_template, redirect, session, url_for, flash, request, abort, jsonify
+from flask import Flask, render_template, redirect, session, url_for, flash, request, abort
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import current_user
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash
 from models.models import *
 from forms.user_form import *
 from forms.ticket_form import *
+from forms.profile_form import *
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +37,12 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
+        email = form.email.data
+        existing_user = User.query.filter_by(email=email).first()
+        
+        if existing_user:
+            flash("Email already taken. Please use a different email address.", "error")
+            return render_template('users/register.html', form=form)
 
         user = User.register(first_name = form.first_name.data,
                               last_name = form.last_name.data,
@@ -46,7 +54,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         session['username'] = user.username
-        flash("Your account has been successfully created!")
+        flash("Your account has been successfully created!", "success")
         return redirect(url_for('login_page'))
     return render_template('users/register.html', form=form)
 
@@ -74,7 +82,7 @@ def logout():
     session.pop("user_id")
     return redirect(url_for('login'))
 
-#############################################################################################################################
+####################################################################################################################################################################################################################################################################
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -99,8 +107,27 @@ def dashboard():
                 abort(404)
         else:
             return redirect(url_for('login_page'))
+        
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    """Profile page"""
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
 
-##############################################################################################################################
+    user = User.query.get_or_404(session['user_id'])
+    form = ProfileForm(obj=user)
+
+    if request.method == 'POST' and form.validate_on_submit():
+            user.username = form.username.data
+            user.email = form.email.data
+            user.role = form.role.data
+            db.session.commit()
+            flash('Profile updated successfully', 'success')
+            return redirect(url_for('dashboard'))
+
+    return render_template('users/profile.html', form=form, user=user)
+    
+###################################################################################################################################################################################################################################################################
 
 @app.route('/ticket_submission', methods=['GET', 'POST'])
 def ticket_submission():
